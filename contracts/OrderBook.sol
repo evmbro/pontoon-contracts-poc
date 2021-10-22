@@ -55,14 +55,14 @@ contract OrderBook {
     //---------------------------------
     //  WRITE
     //---------------------------------
-    function createBuyOrder(string memory stockId, uint256 usdcAmount) external {
+    function createBuyOrder(string memory stockId, uint256 stablecoinAmount) external {
         uint256 orderId = orders[msg.sender].length;
         require(orderId == 0 || orders[msg.sender][orderId - 1].settled, "OrderdBook: pending order exists");
         orders[msg.sender].push(
-            Order(orderId, OrderType.BUY, stockId, msg.sender, usdcAmount, false, 0, 0, 0, 0)
+            Order(orderId, OrderType.BUY, stockId, msg.sender, stablecoinAmount, false, 0, 0, 0, 0)
         );
-        IERC20(stablecoin).transferFrom(msg.sender, address(this), usdcAmount);
-        emit BuyOrderCreated(msg.sender, stockId, usdcAmount, block.timestamp);
+        IERC20(stablecoin).transferFrom(msg.sender, address(this), stablecoinAmount);
+        emit BuyOrderCreated(msg.sender, stockId, stablecoinAmount, block.timestamp);
     }
 
     function createSellOrder(string memory stockId, uint256 stockAmount) external {
@@ -78,16 +78,16 @@ contract OrderBook {
     function settle(
         address wallet,
         uint256 orderId,
-        uint256 usdcAmountSettled,
+        uint256 stablecoinAmountSettled,
         uint256 tokenAmountSettled
     ) external isManager {
         Order memory order = orders[wallet][orderId];
         require(!order.settled, "OrderBook: order settled");
         if (order.orderType == OrderType.BUY) { 
-            _settleBuy(wallet, orderId, usdcAmountSettled, tokenAmountSettled);
+            _settleBuy(wallet, orderId, stablecoinAmountSettled, tokenAmountSettled);
         } 
         else {
-            _settleSell(wallet, orderId, usdcAmountSettled, tokenAmountSettled);
+            _settleSell(wallet, orderId, stablecoinAmountSettled, tokenAmountSettled);
         }
     }
 
@@ -102,16 +102,16 @@ contract OrderBook {
     function _settleBuy(
         address wallet,
         uint256 orderId,
-        uint256 usdcAmountSettled,
+        uint256 stablecoinAmountSettled,
         uint256 tokenAmountSettled
     ) private {
-
+        
     }
 
     function _settleSell(
         address wallet,
         uint256 orderId,
-        uint256 usdcAmountSettled,
+        uint256 stablecoinAmountSettled,
         uint256 tokenAmountSettled
     ) private {
 
