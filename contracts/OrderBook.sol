@@ -151,7 +151,7 @@ contract OrderBook {
         order.settledTokenAmount = tokenAmountSettled;
         order.settledAt = block.timestamp;
         uint256 refund = order.amount - order.settledStablecoinAmount;
-        if (refund > 0) { IERC20(stablecoin).transfer(msg.sender, refund); }
+        if (refund > 0) { IERC20(stablecoin).transfer(order.wallet, refund); }
         emit OrderSettled(order.wallet, order.orderId, order.settledAt);
     }
 
@@ -162,14 +162,14 @@ contract OrderBook {
     ) private {
         if (tokenAmountSettled > 0) {
             Stock(tokens[order.stockId]).burn(address(this), tokenAmountSettled);
-            IERC20(stablecoin).transfer(msg.sender, stablecoinAmountSettled);
+            IERC20(stablecoin).transfer(order.wallet, stablecoinAmountSettled);
         }
         order.settled = true;
         order.settledStablecoinAmount = stablecoinAmountSettled;
         order.settledTokenAmount = tokenAmountSettled;
         order.settledAt = block.timestamp;
         uint256 refund = order.amount - tokenAmountSettled;
-        if (refund > 0) { Stock(tokens[order.stockId]).transfer(msg.sender, refund); }
+        if (refund > 0) { Stock(tokens[order.stockId]).transfer(order.wallet, refund); }
         emit OrderSettled(order.wallet, order.orderId, order.settledAt);
     }
 
