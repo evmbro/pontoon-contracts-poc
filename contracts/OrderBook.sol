@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "./Stock.sol";
 
 contract OrderBook {
@@ -26,6 +27,18 @@ contract OrderBook {
         uint256 settledAt;
     }
 
+    struct PortfolioResponse {
+        Order[] pending;
+        PortfolioEntry[] portfolio;
+    }
+
+    struct PortfolioEntry {
+        string stockId;
+        string stockName;
+        string stockSymbol;
+        uint256 balance;
+    }
+
     struct NewOrderRequest {
         string stockId;
         string stockName;
@@ -38,6 +51,7 @@ contract OrderBook {
     //------------------------
     mapping (address => Order[]) public orders;
     mapping (string => address) public tokens;
+    string[] public tokenList;
     address manager;
     address stablecoin;
 
@@ -124,6 +138,42 @@ contract OrderBook {
     //  READ
     //---------------------------------
     function getOrders(address wallet) external view returns (Order[] memory) { return orders[wallet]; }
+    
+    function getPending(address  wallet) external view returns (Order[] memory) {
+        uint256 ordersLength = orders[wallet].length;
+        Order[] memory pending = new Order[](0);
+        if (ordersLength > 0 && !orders[wallet][ordersLength - 1].settled) {
+            pending = new Order[](1);
+            pending[0] = orders[wallet][ordersLength - 1];
+        }
+        return pending;
+    }
+
+    function getPortfolio(address wallet) external view returns (PortfolioEntry[] memory) {
+        uint256 portfolioItemsCount = 0;
+        for (uint256 i = 0; i < tokenList.length; i++) {
+            if (IERC20(tokens[tokenList[i]]).balanceOf(wallet) > 0) { portfolioItemsCount++; }
+        }
+        PortfolioEntry[] memory portfolio = new PortfolioEntry[](portfolioItemsCount);
+        if (portfolioItemsCount > 0) {
+            uint256 itemIndex = 0;
+            for (uint256 i = 0;  i < tokenList.length; i++)  {
+                string memory stockId = tokenList[i];
+                IERC20Metadata token = IERC20Metadata(tokens[stockId]);
+                uint256 walletBalance = token.balanceOf(wallet);
+                if  (walletBalance > 0) {
+                    portfolio[itemIndex] = PortfolioEntry(
+                        stockId,
+                        token.name(),
+                        token.symbol(),
+                        walletBalance
+                    );
+                    itemIndex++;
+                }
+            }
+        }
+        return portfolio;
+    }
 
     //---------------------------------
     //  INTERNAL
@@ -142,6 +192,7 @@ contract OrderBook {
                     tokenAmountSettled,
                     address(this)
                 ));
+                tokenList.push(order.stockId);
             } else {
                 Stock(tokens[order.stockId]).mint(order.wallet, tokenAmountSettled);
             }

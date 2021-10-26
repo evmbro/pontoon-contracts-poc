@@ -132,6 +132,12 @@ describe("OrderBook - test buy and sell", function () {
         const preSellTotalTokenSupply = await stockInstance.totalSupply();
         expect(preSellTotalTokenSupply.toString()).to.be.equal(tokensSettled.toString());
 
+        const pending = await orderBook.getPending(investorAddress);
+        console.log("pending", pending);
+
+        const portfolio = await orderBook.getPortfolio(investorAddress);
+        console.log("portfolio", portfolio);
+
         const sellOrderUsdcSettled = await ethers.utils.parseEther("200");
         const sellOrderTokenSettled = await ethers.utils.parseEther("40");
         await orderBook.settle(investorAddress, 1, sellOrderUsdcSettled, sellOrderTokenSettled);
@@ -170,6 +176,16 @@ describe("OrderBook - test buy and sell", function () {
         expect(fetchedTokenSupplyAfterSell.toString()).to.be.equal(
             tokensSettled.sub(sellOrderTokenSettled).toString()
         );
+
+        // const newBuyOrderUsdcAmount = await ethers.utils.parseEther("50");
+        // await usdc.connect(investor).approve(orderBook.address, newBuyOrderUsdcAmount);
+        // await orderBook.connect(investor).createBuyOrder([
+        //     stockId,
+        //     stockName,
+        //     stockSymbol,
+        //     newBuyOrderUsdcAmount
+        // ]);
+        // await orderBook.settle()
     });
 
 })
