@@ -5,7 +5,6 @@ import { expect } from "chai";
 import { it } from "mocha";
 
 describe("OrderBook - test buy and sell", function () {
-
     const BUY_ORDER_TYPE = 0;
     const SELL_ORDER_TYPE = 1;
 
@@ -37,7 +36,7 @@ describe("OrderBook - test buy and sell", function () {
         );
     });
 
-    it("should settle one buy , one sell , and one cancel order transaction", async function () {
+    it("should settle one buy, one sell, and one cancel order transaction", async function () {
         const investorInitialBalance = await ethers.utils.parseEther("1000");
         await usdc.transfer(investorAddress, investorInitialBalance);
         expect((await usdc.balanceOf(investorAddress)).toString()).to.be.equal(investorInitialBalance.toString());
@@ -73,8 +72,8 @@ describe("OrderBook - test buy and sell", function () {
         const usdcSettled = await ethers.utils.parseEther("400");
         const tokensSettled = await ethers.utils.parseEther("100");
         await orderBook.settle(investorAddress, 0, usdcSettled, tokensSettled);
-        
-        const ordersAfterSettlement = await orderBook.getOrders(investorAddress);        
+
+        const ordersAfterSettlement = await orderBook.getOrders(investorAddress);
         console.log("ordersAfterSettlement[0]", ordersAfterSettlement[0]);
         expect(orders).to.have.a.lengthOf(1);
         expect(ordersAfterSettlement[0].orderId.toNumber()).to.be.equal(0);
@@ -88,7 +87,7 @@ describe("OrderBook - test buy and sell", function () {
         expect(ordersAfterSettlement[0].settledStablecoinAmount.toString()).to.be.equal(usdcSettled.toString());
         expect(ordersAfterSettlement[0].settledTokenAmount.toString()).to.be.equal(tokensSettled.toString());
         expect(ordersAfterSettlement[0].createdAt.toNumber()).to.be.greaterThan(0);
-        expect(ordersAfterSettlement[0].settledAt.toNumber()).to.be.greaterThan(0); 
+        expect(ordersAfterSettlement[0].settledAt.toNumber()).to.be.greaterThan(0);
 
         const tokenAddress = await orderBook.tokens(stockId);
         console.log("token address", tokenAddress);
@@ -187,5 +186,4 @@ describe("OrderBook - test buy and sell", function () {
         // ]);
         // await orderBook.settle()
     });
-
 })

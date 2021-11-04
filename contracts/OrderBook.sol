@@ -36,6 +36,7 @@ contract OrderBook {
         string stockId;
         string stockName;
         string stockSymbol;
+        address stockAddress;
         uint256 balance;
     }
 
@@ -80,7 +81,7 @@ contract OrderBook {
     //---------------------------------
     function createBuyOrder(NewOrderRequest memory request) external {
         uint256 orderId = orders[msg.sender].length;
-        require(orderId == 0 || orders[msg.sender][orderId - 1].settled, "OrderdBook: pending order exists");
+        require(orderId == 0 || orders[msg.sender][orderId - 1].settled, "OrderBook: pending order exists");
         orders[msg.sender].push(
             Order(
                 orderId,
@@ -100,7 +101,7 @@ contract OrderBook {
 
     function createSellOrder(NewOrderRequest memory request) external {
         uint256 orderId = orders[msg.sender].length;
-        require(orderId == 0 || orders[msg.sender][orderId - 1].settled, "OrderdBook: pending order exists");
+        require(orderId == 0 || orders[msg.sender][orderId - 1].settled, "OrderBook: pending order exists");
         orders[msg.sender].push(
             Order(
                 orderId,
@@ -166,6 +167,7 @@ contract OrderBook {
                         stockId,
                         token.name(),
                         token.symbol(),
+                        address(token),
                         walletBalance
                     );
                     itemIndex++;
